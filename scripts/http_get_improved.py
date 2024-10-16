@@ -9,6 +9,8 @@ import argparse
 import os
 from libnmap.parser import NmapParser
 import urllib3
+import io
+import contextlib
 
 # Disable warnings from urllib3 (used by requests)
 urllib3.disable_warnings()
@@ -34,7 +36,7 @@ def banner():
     @BeeSec
     Helping you Bee Secure
 
-usage: http-get-improved.py -i <input file> | -x <xml file>
+usage: http_get_improved.py -i <input file> | -x <xml file>
 """
     print(COLOURS["star"] + banner_text + COLOURS["end"])
 
@@ -85,7 +87,7 @@ def main():
         txt_file_scanner(args.ifile)
     else:
         print(COLOURS[
-                  "cross"] + " Error: Either the -i or -x flag is required. Usage: python http-get-improved.py -i <input file> | -x <xml file>" +
+                  "cross"] + " Error: Either the -i or -x flag is required. Usage: python http_get_improved.py -i <input file> | -x <xml file>" +
               COLOURS["end"])
         sys.exit(2)
 
@@ -207,6 +209,14 @@ def handle_request_exception(host: str, port: str, exception: Exception, output_
     output_files["errorlog"].write(f'{COLOURS["warn"]} Error occurred while testing {host}:{port}: {exception}\n')
     output_files["log"].write(f"{host}:{port}, Error, n\n")
 
+
+def get_terminal_output():
+    """Capture the terminal output and return it as a string."""
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        banner()
+        main()
+    return output.getvalue()
 
 if __name__ == "__main__":
     banner()

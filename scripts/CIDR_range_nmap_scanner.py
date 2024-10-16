@@ -1,14 +1,11 @@
-import subprocess
 import os
+from scripts.run_commands import run_verbose_command
 
-# todo: please change these globals if needed!!
+#globals
+temp_directory = "temp"
+output_directory_name = "output"
 process_number = 40
-output_directory_name = 'output'
-target_ip_ranges_filepath = 'targets.txt'
-
-if not os.path.exists(output_directory_name):
-    os.makedirs(output_directory_name)
-
+targets = "targets.txt"
 
 def read_ip_ranges(filepath):
     """
@@ -22,10 +19,6 @@ def read_ip_ranges(filepath):
             ip_range, ip_name = line.strip().split(' : ')
             ips_and_names[ip_range] = ip_name
     return ips_and_names
-
-
-# ips_and_names = read_ip_ranges(target_ip_ranges_filepath)
-
 
 # nmap -sL | grep '^Nmap scan' | cut -d " " -f 5 | tee
 def generate_ip_list_for_CIDR(ip_range, ip_range_name):
@@ -44,21 +37,7 @@ def generate_ip_list_for_CIDR(ip_range, ip_range_name):
             file.write('')
 
     command = f"nmap -sL {ip_range} | grep '^Nmap scan' | cut -d ' ' -f 5 | tee {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt"
-    try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end='')
-
-        process.stdout.close()
-        process.wait()
-
-        if process.returncode != 0:
-            stderr_output = process.stderr.read()
-            raise subprocess.CalledProcessError(process.returncode, command, stderr_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+    run_verbose_command(command)
 
 
 # cat targets.txt | xargs -I % -P 10 sudo nmap % -sSV -vv -p- -Pn -n -A -T4 -oA nmap-BeeSecLab-TCP_ALL-%
@@ -71,21 +50,7 @@ def full_nmap_tcp_scan(ip_range, ip_range_name):
     command = (f"cat {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt | "
                f"xargs -I % -P {process_number} "
                f"sudo nmap % -sSV -vv -p- -Pn -n -A -T4 -oA {output_directory_name}/{ip_range_name}/TCP-FULLSCAN/nmap-{ip_range_name}-TCP-FULLSCAN-%")
-    try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end='')
-
-        process.stdout.close()
-        process.wait()
-
-        if process.returncode != 0:
-            stderr_output = process.stderr.read()
-            raise subprocess.CalledProcessError(process.returncode, command, stderr_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+    run_verbose_command(command)
 
 
 # Discovery Scan
@@ -98,21 +63,7 @@ def discovery_scan(ip_range, ip_range_name):
     command = (f"cat {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt | "
                f"xargs -I % -P {process_number} "
                f"sudo nmap % -sS -vv -top-ports=2000 -Pn -n -oA {output_directory_name}/{ip_range_name}/TCP-Top2k/nmap-{ip_range_name}-TCP-Top2k-%")
-    try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end='')
-
-        process.stdout.close()
-        process.wait()
-
-        if process.returncode != 0:
-            stderr_output = process.stderr.read()
-            raise subprocess.CalledProcessError(process.returncode, command, stderr_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+    run_verbose_command(command)
 
 
 # UDP Scan
@@ -126,21 +77,7 @@ def udp_scan(ip_range, ip_range_name):
                f"xargs -I % -P {process_number} "
                f"sudo nmap % -sU -vv --top-ports=2000 -Pn -n -T4 -oA {output_directory_name}/{ip_range_name}/UDP"
                f"-Top2k/nmap-{ip_range_name}-UDP-Top2k-%")
-    try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end='')
-
-        process.stdout.close()
-        process.wait()
-
-        if process.returncode != 0:
-            stderr_output = process.stderr.read()
-            raise subprocess.CalledProcessError(process.returncode, command, stderr_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+    run_verbose_command(command)
 
 
 def basic_scan(ip_range, ip_range_name):
@@ -150,21 +87,7 @@ def basic_scan(ip_range, ip_range_name):
     command = (f"cat {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt | "
                f"xargs -I % -P {process_number} "
                f"nmap % -Pn -oA {output_directory_name}/{ip_range_name}/Basic-scan/nmap-{ip_range_name}-Basic-scan-%")
-    try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end='')
-
-        process.stdout.close()
-        process.wait()
-
-        if process.returncode != 0:
-            stderr_output = process.stderr.read()
-            raise subprocess.CalledProcessError(process.returncode, command, stderr_output)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with error: {e.stderr}")
+    run_verbose_command(command)
 
 # for ip_range, ip_name in ips_and_names.items():
 #    generate_ip_list(ip_range, ip_name)
