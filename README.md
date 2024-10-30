@@ -1,6 +1,6 @@
 # Scooby
 
-This script automates network scanning using [Nmap](https://nmap.org/), [autosslscan](https://github.com/BeeSec-UK/autosslscan), and [http-get](scripts/http_get_improved.py). It uses all of these tools and formats the results in a comprehensive way.
+This script automates network scanning using [Nmap](https://nmap.org/), [autosslscan](https://github.com/BeeSec-UK/autosslscan), and [http-get](https://github.com/BeeSec-UK/http-get). It uses all of these tools and formats the results in a comprehensive way.
 
 ## Usage
 Assuming Nmap is on your system, and all [requirements](requirements.txt) are installed:
