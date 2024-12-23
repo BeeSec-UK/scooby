@@ -5,3 +5,5 @@ nmapparser
 python-libnmap
 requests
 urllib3
+netaddr
+rpyc

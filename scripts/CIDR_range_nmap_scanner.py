@@ -1,5 +1,7 @@
-import os
+import os, ipaddress
+from netaddr.core import AddrFormatError
 from scripts.run_commands import run_verbose_command
+from netaddr import IPNetwork
 
 #globals
 temp_directory = "temp"
@@ -36,8 +38,13 @@ def generate_ip_list_for_CIDR(ip_range, ip_range_name):
         with open(f"{output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt", 'w') as file:
             file.write('')
 
-    command = f"nmap -sL {ip_range} | grep '^Nmap scan' | cut -d ' ' -f 5 | tee {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt"
-    run_verbose_command(command)
+    try:
+        with open(f"{output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt", 'w') as file:
+            for ip in IPNetwork(ip_range):
+                file.write('%s\n' % ip)
+    except AddrFormatError:
+        command = f"nmap -sL {ip_range} | grep '^Nmap scan' | cut -d ' ' -f 5 | tee {output_directory_name}/{ip_range_name}/{ip_range_name}-target-ips.txt"
+        run_verbose_command(command)
 
 
 # cat targets.txt | xargs -I % -P 10 sudo nmap % -sSV -vv -p- -Pn -n -A -T4 -oA nmap-BeeSecLab-TCP_ALL-%
@@ -89,19 +96,11 @@ def basic_scan(ip_range, ip_range_name):
                f"nmap % -Pn -oA {output_directory_name}/{ip_range_name}/Basic-scan/nmap-{ip_range_name}-Basic-scan-%")
     run_verbose_command(command)
 
-# for ip_range, ip_name in ips_and_names.items():
-#    generate_ip_list(ip_range, ip_name)
 
-# with open(target_ip_ranges_filepath, 'r') as f:
-#     for line in f:
-#         ip_range, ip_name = line.strip().split(' : ')
-#         generate_ip_list(ip_range, ip_name)
-#         #basic_scan(ip_range, ip_name)
-#         #discovery_scan(ip_range, ip_name)
-#         full_nmap_tcp_scan(ip_range, ip_name)
-#         #udp_scan(ip_range, ip_name)
-
-# for ip_range, ip_name in ips_and_names.items():
-#     discovery_scan(ip_range, ip_name)
-#     full_nmap_tcp_scan(ip_range, ip_name)
-#     udp_scan(ip_range, ip_name)
+def generate_ip_list_basic(lower_ip, upper_ip):
+    lower = int(ipaddress.ip_address(lower_ip))
+    upper = int(ipaddress.ip_address(upper_ip))
+    ips = []
+    for i in range(lower, upper + 1):
+        ips.append(ipaddress.ip_address(i))
+    return ips

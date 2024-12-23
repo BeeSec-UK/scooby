@@ -86,7 +86,6 @@ def run_autosslscan(autosslscan_output_directory: str, merged_xml_filepath: str)
     """
     os.makedirs(autosslscan_output_directory, exist_ok=True)
     command = f"python scripts/autosslscan.py -i {merged_xml_filepath} -o {autosslscan_output_directory} -t 10"
-    print(command)
     run_verbose_command(command)
 
 

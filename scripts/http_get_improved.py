@@ -22,7 +22,8 @@ COLOURS = {
     "cross": "\033[1;34m[\033[1;m\033[1;31mx\033[1;m\033[1;34m]",
     "star": "\033[1;34m[*]\033[1;m",
     "warn": "\033[1;34m[\033[1;m\033[1;33m!\033[1;m\033[1;34m]",
-    "end": "\033[1;m"
+    "end": "\033[1;m",
+    "blue": "\033[1;34m"
 }
 
 
@@ -36,9 +37,9 @@ def banner():
     @BeeSec
     Helping you Bee Secure
 
-usage: http_get_improved.py -i <input file> | -x <xml file>
+    usage: http_get_improved.py -i <input file> | -x <xml file>
 """
-    print(COLOURS["star"] + banner_text + COLOURS["end"])
+    print(f"{COLOURS['blue']}{banner_text}{COLOURS['end']}")
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -214,10 +215,10 @@ def get_terminal_output():
     """Capture the terminal output and return it as a string."""
     output = io.StringIO()
     with contextlib.redirect_stdout(output):
-        banner()
         main()
+        banner()
     return output.getvalue()
 
 if __name__ == "__main__":
-    banner()
     main()
+    banner()
